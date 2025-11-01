@@ -28,7 +28,13 @@
             display: flex;
             flex-direction: column;
         }
-        
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 180px;
+            }
+        }
+                
         .sidebar-header {
             padding: 20px;
             background: #ffa500;
@@ -36,6 +42,13 @@
             font-size: 18px;
             font-weight: bold;
             text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-header {
+                padding: 15px 10px;
+                font-size: 16px;
+            }
         }
         
         .sidebar-menu {
@@ -48,6 +61,14 @@
             cursor: pointer;
             transition: background 0.3s;
             border-left: 3px solid transparent;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .menu-item {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
         }
         
         .menu-item:hover {
@@ -535,7 +556,7 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        <tr><td colspan="29" class="loading">Loading data...</td></tr>
+                        <tr><td colspan="13" class="loading">Loading data...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1131,5 +1152,4 @@
         loadAllEquipment();
     </script>
 </body>
-
 </html>
