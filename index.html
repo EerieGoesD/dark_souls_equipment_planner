@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Souls 1 Equipment Calculator</title>
+    <title>Dark Souls Equipment Calculator</title>
     <link rel="icon" type="image/png" href="icon.png">
     <style>
         * {
@@ -299,7 +299,7 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header">
-            Dark Souls 1 Calculator
+            Dark Souls Calculator
         </div>
         <div class="sidebar-menu">
             <div class="menu-item active" data-section="calculator">
@@ -517,6 +517,7 @@
                             <th onclick="sortTable('pse')" style="cursor: pointer;">Poise ↕</th>
                             <th onclick="sortTable('wt')" style="cursor: pointer;">Weight ↕</th>
                             <th onclick="sortTable('weightPoiseRatio')" style="cursor: pointer;">Wt Poise Ratio ↕</th>
+                            <th onclick="sortTable('poisePhysicalRatio')" style="cursor: pointer;">Poise Phys Ratio ↕</th>
                             <th onclick="sortTable('weightPhysicalRatio')" style="cursor: pointer;">Wt Phys Ratio ↕</th>
                             <th onclick="sortTable('weightPhysicalPoiseRatio')" style="cursor: pointer;">Wt Phys Poise Ratio ↕</th>
                             <th onclick="sortTable('weightMagicRatio')" style="cursor: pointer;">Wt Magic Ratio ↕</th>
@@ -749,6 +750,7 @@
                     <td>${item.pse}</td>
                     <td>${item.wt}</td>
                     <td>${(item.weightPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.poisePhysicalRatio || 0).toFixed(2)}</td>
                     <td>${(item.weightPhysicalRatio || 0).toFixed(2)}</td>
                     <td>${(item.weightPhysicalPoiseRatio || 0).toFixed(2)}</td>
                     <td>${(item.weightMagicRatio || 0).toFixed(2)}</td>
@@ -772,12 +774,12 @@
         function updateTableHeaders() {
             const headers = document.querySelectorAll('#equipmentTable th');
             const columnMap = ['name', 'phys', 'strike', 'slash', 'thrust', 'mag', 'fire', 'lghtng', 'bld', 'psn', 'curse', 'pse', 'wt', 
-                             'weightPoiseRatio', 'weightPhysicalRatio', 'weightPhysicalPoiseRatio', 'weightMagicRatio', 'weightMagicPoiseRatio',
+                             'weightPoiseRatio', 'poisePhysicalRatio', 'weightPhysicalRatio', 'weightPhysicalPoiseRatio', 'weightMagicRatio', 'weightMagicPoiseRatio',
                              'weightFireRatio', 'weightFirePoiseRatio', 'weightLightningRatio', 'weightLightningPoiseRatio', 'weightBleedRatio',
                              'weightBleedPoiseRatio', 'weightPoisonRatio', 'weightPoisonPoiseRatio', 'weightCurseRatio', 'weightCursePoiseRatio'];
             
             const headerNames = ['Name', 'Phys', 'Strike', 'Slash', 'Thrust', 'Mag', 'Fire', 'Lghtng', 'Bleed', 'Poison', 'Curse', 'Poise', 'Weight',
-                               'Wt Poise Ratio', 'Wt Phys Ratio', 'Wt Phys Poise Ratio', 'Wt Magic Ratio', 'Wt Magic Poise Ratio',
+                               'Wt Poise Ratio', 'Poise Phys Ratio', 'Wt Phys Ratio', 'Wt Phys Poise Ratio', 'Wt Magic Ratio', 'Wt Magic Poise Ratio',
                                'Wt Fire Ratio', 'Wt Fire Poise Ratio', 'Wt Lightning Ratio', 'Wt Lightning Poise Ratio', 'Wt Bleed Ratio',
                                'Wt Bleed Poise Ratio', 'Wt Poison Ratio', 'Wt Poison Poise Ratio', 'Wt Curse Ratio', 'Wt Curse Poise Ratio'];
             
@@ -1130,5 +1132,3 @@
     </script>
 </body>
 </html>
-
-
