@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Souls Equipment Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: #0f0f0f;
+            border-right: 2px solid #ffa500;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background: #ffa500;
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+        
+        .menu-item {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: #2a2a2a;
+        }
+        
+        .menu-item.active {
+            background: #2a2a2a;
+            border-left-color: #ffa500;
+            color: #ffa500;
+        }
+        
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        h1 {
+            color: #ffa500;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        h2 {
+            color: #ffa500;
+            margin: 20px 0 15px 0;
+            font-size: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffa500;
+            font-weight: bold;
+        }
+        
+        input[type="number"], select {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #ffa500;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        button {
+            padding: 12px 30px;
+            background: #ffa500;
+            border: none;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background: #ff8800;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #2a2a2a;
+            border: 2px solid #ffa500;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .equipment-item {
+            padding: 15px;
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .equipment-item h3 {
+            color: #ffa500;
+            margin-bottom: 10px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .stat-label {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #2a2a2a;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #444;
+        }
+        
+        th {
+            background: #ffa500;
+            color: #000;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:hover {
+            background: #333;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background: #333;
+        }
+        
+        .tab.active {
+            background: #ffa500;
+            color: #000;
+            border-color: #ffa500;
+        }
+        
+        .inventory-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .inventory-item {
+            padding: 15px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .inventory-item:hover {
+            border-color: #ffa500;
+            background: #333;
+        }
+        
+        .inventory-item input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        .inventory-item.owned {
+            border-color: #4a7c1f;
+            background: #1a2a0f;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ffa500;
+            font-size: 18px;
+        }
+        
+        .error {
+            padding: 15px;
+            background: #5c1616;
+            border: 1px solid #8b2222;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            Dark Souls Calculator
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" data-section="calculator">
+                Equipment Calculator
+            </div>
+            <div class="menu-item" data-section="table">
+                See Table Data
+            </div>
+            <div class="menu-item" data-section="inventory">
+                Inventory
+            </div>
+            <div style="padding: 20px; text-align: center; color: #888; font-size: 14px; margin-top: auto;">
+                Made by <a href="https://linktr.ee/eeriegoesd" target="_blank" style="color: #4a90e2; text-decoration: none; font-weight: bold;">EERIE</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div id="calculator" class="section active">
+            <h1>Equipment Calculator</h1>
+            
+            <div class="form-group">
+                <label for="maxEquipLoad">Your Maximum Equip Load:</label>
+                <input type="number" id="maxEquipLoad" placeholder="Enter your max equip load" step="0.1" value="50">
+            </div>
+            
+            <div class="form-group">
+                <label for="rollType">Expected Movement Speed/Roll Speed:</label>
+                <select id="rollType">
+                    <option value="25">< 25% Equip Load (Fast Roll)</option>
+                    <option value="50">25.1-50%: Mid Roll</option>
+                    <option value="100">50.1-100%: Fat Roll</option>
+                    <option value="999">100.1%+: Can't Roll (Disregard Equip Load)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="priorityStat">Prioritize:</label>
+                <select id="priorityStat">
+                    <option value="phys">Physical Defense</option>
+                    <option value="strike">Strike Defense</option>
+                    <option value="slash">Slash Defense</option>
+                    <option value="thrust">Thrust Defense</option>
+                    <option value="mag">Magic Defense</option>
+                    <option value="fire">Fire Defense</option>
+                    <option value="lghtng">Lightning Defense</option>
+                    <option value="bld">Bleed Resist</option>
+                    <option value="psn">Poison Resist</option>
+                    <option value="curse">Curse Resist</option>
+                    <option value="pse">Poise</option>
+                    <option value="wt">Minimize Weight</option>
+                    <option value="weightPoiseRatio">Weight Poise Ratio</option>
+                    <option value="poisePhysicalRatio">Poise Physical Ratio</option>
+                    <option value="weightPhysicalRatio">Weight Physical Ratio</option>
+                    <option value="weightPhysicalPoiseRatio">Weight Physical Poise Ratio</option>
+                    <option value="weightMagicRatio">Weight Magic Ratio</option>
+                    <option value="weightMagicPoiseRatio">Weight Magic Poise Ratio</option>
+                    <option value="weightFireRatio">Weight Fire Ratio</option>
+                    <option value="weightFirePoiseRatio">Weight Fire Poise Ratio</option>
+                    <option value="weightLightningRatio">Weight Lightning Ratio</option>
+                    <option value="weightLightningPoiseRatio">Weight Lightning Poise Ratio</option>
+                    <option value="weightBleedRatio">Weight Bleed Ratio</option>
+                    <option value="weightBleedPoiseRatio">Weight Bleed Poise Ratio</option>
+                    <option value="weightPoisonRatio">Weight Poison Ratio</option>
+                    <option value="weightPoisonPoiseRatio">Weight Poison Poise Ratio</option>
+                    <option value="weightCurseRatio">Weight Curse Ratio</option>
+                    <option value="weightCursePoiseRatio">Weight Curse Poise Ratio</option>
+                </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="prioritizeInventory">
+                <label for="prioritizeInventory">Prioritize items in your inventory first</label>
+            </div>
+            
+            <h2>Weapons & Shields</h2>
+            
+            <div class="form-group">
+                <label for="weapon1">Weapon 1:</label>
+                <select id="weapon1" style="max-width: 400px;">
+                    <option value="">Unarmed</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="weapon2">Weapon 2:</label>
+                <select id="weapon2" style="max-width: 400px;">
+                    <option value="">Unarmed</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="shield1">Shield 1:</label>
+                <select id="shield1" style="max-width: 400px;">
+                    <option value="">None</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="shield2">Shield 2:</label>
+                <select id="shield2" style="max-width: 400px;">
+                    <option value="">None</option>
+                </select>
+            </div>
+            
+            <h2>Force Specific Items</h2>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="forceHead">
+                <label for="forceHead">Force Head item</label>
+            </div>
+            <div class="form-group" id="forceHeadSelect" style="display: none; margin-left: 30px;">
+                <select id="headItem" style="max-width: 400px;">
+                    <option value="">Select head item...</option>
+                </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="forceChest">
+                <label for="forceChest">Force Chest item</label>
+            </div>
+            <div class="form-group" id="forceChestSelect" style="display: none; margin-left: 30px;">
+                <select id="chestItem" style="max-width: 400px;">
+                    <option value="">Select chest item...</option>
+                </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="forceHands">
+                <label for="forceHands">Force Hands item</label>
+            </div>
+            <div class="form-group" id="forceHandsSelect" style="display: none; margin-left: 30px;">
+                <select id="handsItem" style="max-width: 400px;">
+                    <option value="">Select hands item...</option>
+                </select>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="forceLegs">
+                <label for="forceLegs">Force Legs item</label>
+            </div>
+            <div class="form-group" id="forceLegsSelect" style="display: none; margin-left: 30px;">
+                <select id="legsItem" style="max-width: 400px;">
+                    <option value="">Select legs item...</option>
+                </select>
+            </div>
+            
+            <h2>Exclude Items</h2>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="excludeHead">
+                    <label for="excludeHead">Exclude Head items</label>
+                </div>
+                <div id="excludeHeadList" style="display: none; margin-left: 30px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; background: #2a2a2a; padding: 15px; border-radius: 4px; border: 1px solid #444;"></div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="excludeChest">
+                    <label for="excludeChest">Exclude Chest items</label>
+                </div>
+                <div id="excludeChestList" style="display: none; margin-left: 30px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; background: #2a2a2a; padding: 15px; border-radius: 4px; border: 1px solid #444;"></div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="excludeHands">
+                    <label for="excludeHands">Exclude Hands items</label>
+                </div>
+                <div id="excludeHandsList" style="display: none; margin-left: 30px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; background: #2a2a2a; padding: 15px; border-radius: 4px; border: 1px solid #444;"></div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="excludeLegs">
+                    <label for="excludeLegs">Exclude Legs items</label>
+                </div>
+                <div id="excludeLegsList" style="display: none; margin-left: 30px; margin-bottom: 20px; max-height: 300px; overflow-y: auto; background: #2a2a2a; padding: 15px; border-radius: 4px; border: 1px solid #444;"></div>
+            </div>
+            
+            <button onclick="calculate()">Calculate</button>
+            
+            <div id="results" class="results">
+                <h2>Optimal Equipment</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+        
+        <div id="table" class="section">
+            <h1>Equipment Data</h1>
+            
+            <div class="category-tabs">
+                <div class="tab active" data-category="head">Head</div>
+                <div class="tab" data-category="chest">Chest</div>
+                <div class="tab" data-category="hands">Hands</div>
+                <div class="tab" data-category="legs">Legs</div>
+            </div>
+            
+            <div class="table-container">
+                <table id="equipmentTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')" style="cursor: pointer;">Name ↕</th>
+                            <th onclick="sortTable('phys')" style="cursor: pointer;">Phys ↕</th>
+                            <th onclick="sortTable('strike')" style="cursor: pointer;">Strike ↕</th>
+                            <th onclick="sortTable('slash')" style="cursor: pointer;">Slash ↕</th>
+                            <th onclick="sortTable('thrust')" style="cursor: pointer;">Thrust ↕</th>
+                            <th onclick="sortTable('mag')" style="cursor: pointer;">Mag ↕</th>
+                            <th onclick="sortTable('fire')" style="cursor: pointer;">Fire ↕</th>
+                            <th onclick="sortTable('lghtng')" style="cursor: pointer;">Lghtng ↕</th>
+                            <th onclick="sortTable('bld')" style="cursor: pointer;">Bleed ↕</th>
+                            <th onclick="sortTable('psn')" style="cursor: pointer;">Poison ↕</th>
+                            <th onclick="sortTable('curse')" style="cursor: pointer;">Curse ↕</th>
+                            <th onclick="sortTable('pse')" style="cursor: pointer;">Poise ↕</th>
+                            <th onclick="sortTable('wt')" style="cursor: pointer;">Weight ↕</th>
+                            <th onclick="sortTable('weightPoiseRatio')" style="cursor: pointer;">Wt Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightPhysicalRatio')" style="cursor: pointer;">Wt Phys Ratio ↕</th>
+                            <th onclick="sortTable('weightPhysicalPoiseRatio')" style="cursor: pointer;">Wt Phys Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightMagicRatio')" style="cursor: pointer;">Wt Magic Ratio ↕</th>
+                            <th onclick="sortTable('weightMagicPoiseRatio')" style="cursor: pointer;">Wt Magic Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightFireRatio')" style="cursor: pointer;">Wt Fire Ratio ↕</th>
+                            <th onclick="sortTable('weightFirePoiseRatio')" style="cursor: pointer;">Wt Fire Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightLightningRatio')" style="cursor: pointer;">Wt Lightning Ratio ↕</th>
+                            <th onclick="sortTable('weightLightningPoiseRatio')" style="cursor: pointer;">Wt Lightning Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightBleedRatio')" style="cursor: pointer;">Wt Bleed Ratio ↕</th>
+                            <th onclick="sortTable('weightBleedPoiseRatio')" style="cursor: pointer;">Wt Bleed Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightPoisonRatio')" style="cursor: pointer;">Wt Poison Ratio ↕</th>
+                            <th onclick="sortTable('weightPoisonPoiseRatio')" style="cursor: pointer;">Wt Poison Poise Ratio ↕</th>
+                            <th onclick="sortTable('weightCurseRatio')" style="cursor: pointer;">Wt Curse Ratio ↕</th>
+                            <th onclick="sortTable('weightCursePoiseRatio')" style="cursor: pointer;">Wt Curse Poise Ratio ↕</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr><td colspan="13" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="inventory" class="section">
+            <h1>Inventory</h1>
+            <p style="color: #aaa; margin-bottom: 20px;">Check items you own. This will be used in the calculator when "Prioritize items in your inventory first" is enabled.</p>
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="category-tabs">
+                    <div class="tab active" data-inv-category="head">Head</div>
+                    <div class="tab" data-inv-category="chest">Chest</div>
+                    <div class="tab" data-inv-category="hands">Hands</div>
+                    <div class="tab" data-inv-category="legs">Legs</div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="sortInventoryAZ()" style="margin: 0;">Sort A-Z</button>
+                    <button onclick="saveInventory()" style="margin: 0;">Save Inventory</button>
+                    <button onclick="document.getElementById('loadInventoryFile').click()" style="margin: 0;">Load Inventory</button>
+                    <input type="file" id="loadInventoryFile" accept=".json" style="display: none;" onchange="loadInventory(event)">
+                </div>
+            </div>
+            
+            <div id="inventoryList" class="inventory-list">
+                <div class="loading">Loading inventory...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        const firebaseConfig = {
+            databaseURL: "https://dark-souls-equipment-sheet-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let equipmentData = {
+            head: [],
+            chest: [],
+            hands: [],
+            legs: []
+        };
+
+        let weaponsData = [];
+
+        let inventory = JSON.parse(localStorage.getItem('dsInventory') || '{}');
+        let excludedItems = JSON.parse(localStorage.getItem('dsExcludedItems') || '{"head":[],"chest":[],"hands":[],"legs":[]}');
+        let currentCategory = 'head';
+        let currentInventoryCategory = 'head';
+        let sortColumn = null;
+        let sortDirection = 'asc';
+
+        document.getElementById('forceHead').addEventListener('change', function() {
+            document.getElementById('forceHeadSelect').style.display = this.checked ? 'block' : 'none';
+        });
+        
+        document.getElementById('forceChest').addEventListener('change', function() {
+            document.getElementById('forceChestSelect').style.display = this.checked ? 'block' : 'none';
+        });
+        
+        document.getElementById('forceHands').addEventListener('change', function() {
+            document.getElementById('forceHandsSelect').style.display = this.checked ? 'block' : 'none';
+        });
+        
+        document.getElementById('forceLegs').addEventListener('change', function() {
+            document.getElementById('forceLegsSelect').style.display = this.checked ? 'block' : 'none';
+        });
+
+        document.getElementById('excludeHead').addEventListener('change', function() {
+            document.getElementById('excludeHeadList').style.display = this.checked ? 'block' : 'none';
+            if (this.checked) populateExcludeList('head');
+        });
+
+        document.getElementById('excludeChest').addEventListener('change', function() {
+            document.getElementById('excludeChestList').style.display = this.checked ? 'block' : 'none';
+            if (this.checked) populateExcludeList('chest');
+        });
+
+        document.getElementById('excludeHands').addEventListener('change', function() {
+            document.getElementById('excludeHandsList').style.display = this.checked ? 'block' : 'none';
+            if (this.checked) populateExcludeList('hands');
+        });
+
+        document.getElementById('excludeLegs').addEventListener('change', function() {
+            document.getElementById('excludeLegsList').style.display = this.checked ? 'block' : 'none';
+            if (this.checked) populateExcludeList('legs');
+        });
+
+        function populateExcludeList(category) {
+            const container = document.getElementById(`exclude${category.charAt(0).toUpperCase() + category.slice(1)}List`);
+            const items = [...equipmentData[category]].sort((a, b) => a.name.localeCompare(b.name));
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div style="color: #aaa;">No items available</div>';
+                return;
+            }
+            
+            container.innerHTML = items.map(item => {
+                const isExcluded = excludedItems[category].includes(item.id);
+                return `
+                    <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="exclude_${category}_${item.id}" ${isExcluded ? 'checked' : ''} 
+                            onchange="toggleExclude('${category}', '${item.id}', this.checked)" style="margin: 0;">
+                        <label for="exclude_${category}_${item.id}" style="cursor: pointer; margin: 0;">${item.name}</label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.toggleExclude = function(category, itemId, excluded) {
+            if (excluded) {
+                if (!excludedItems[category].includes(itemId)) {
+                    excludedItems[category].push(itemId);
+                }
+            } else {
+                excludedItems[category] = excludedItems[category].filter(id => id !== itemId);
+            }
+            localStorage.setItem('dsExcludedItems', JSON.stringify(excludedItems));
+        };
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                
+                this.classList.add('active');
+                const section = this.getAttribute('data-section');
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                if (category) {
+                    document.querySelectorAll('.tab[data-category]').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    loadTableData(category);
+                }
+            });
+        });
+
+        document.querySelectorAll('.tab[data-inv-category]').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const category = this.getAttribute('data-inv-category');
+                document.querySelectorAll('.tab[data-inv-category]').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                loadInventoryList(category);
+            });
+        });
+
+        window.sortTable = function(column) {
+            const items = equipmentData[currentCategory];
+            
+            if (sortColumn === column) {
+                if (sortDirection === 'asc') {
+                    sortDirection = 'desc';
+                } else if (sortDirection === 'desc') {
+                    sortColumn = null;
+                    sortDirection = 'asc';
+                    loadTableData(currentCategory);
+                    return;
+                }
+            } else {
+                sortColumn = column;
+                sortDirection = 'asc';
+            }
+            
+            items.sort((a, b) => {
+                let aVal = a[column] || 0;
+                let bVal = b[column] || 0;
+                
+                if (column === 'name') {
+                    aVal = aVal.toString().toLowerCase();
+                    bVal = bVal.toString().toLowerCase();
+                    return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                }
+                
+                return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
+            });
+            
+            renderTable();
+        };
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const items = equipmentData[currentCategory];
+            
+            if (!items || items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="28" style="text-align: center; color: #aaa;">No data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = items.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.phys}</td>
+                    <td>${item.strike}</td>
+                    <td>${item.slash}</td>
+                    <td>${item.thrust}</td>
+                    <td>${item.mag}</td>
+                    <td>${item.fire}</td>
+                    <td>${item.lghtng}</td>
+                    <td>${item.bld}</td>
+                    <td>${item.psn}</td>
+                    <td>${item.curse}</td>
+                    <td>${item.pse}</td>
+                    <td>${item.wt}</td>
+                    <td>${(item.weightPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightPhysicalRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightPhysicalPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightMagicRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightMagicPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightFireRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightFirePoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightLightningRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightLightningPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightBleedRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightBleedPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightPoisonRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightPoisonPoiseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightCurseRatio || 0).toFixed(2)}</td>
+                    <td>${(item.weightCursePoiseRatio || 0).toFixed(2)}</td>
+                </tr>
+            `).join('');
+            
+            updateTableHeaders();
+        }
+
+        function updateTableHeaders() {
+            const headers = document.querySelectorAll('#equipmentTable th');
+            const columnMap = ['name', 'phys', 'strike', 'slash', 'thrust', 'mag', 'fire', 'lghtng', 'bld', 'psn', 'curse', 'pse', 'wt', 
+                             'weightPoiseRatio', 'weightPhysicalRatio', 'weightPhysicalPoiseRatio', 'weightMagicRatio', 'weightMagicPoiseRatio',
+                             'weightFireRatio', 'weightFirePoiseRatio', 'weightLightningRatio', 'weightLightningPoiseRatio', 'weightBleedRatio',
+                             'weightBleedPoiseRatio', 'weightPoisonRatio', 'weightPoisonPoiseRatio', 'weightCurseRatio', 'weightCursePoiseRatio'];
+            
+            const headerNames = ['Name', 'Phys', 'Strike', 'Slash', 'Thrust', 'Mag', 'Fire', 'Lghtng', 'Bleed', 'Poison', 'Curse', 'Poise', 'Weight',
+                               'Wt Poise Ratio', 'Wt Phys Ratio', 'Wt Phys Poise Ratio', 'Wt Magic Ratio', 'Wt Magic Poise Ratio',
+                               'Wt Fire Ratio', 'Wt Fire Poise Ratio', 'Wt Lightning Ratio', 'Wt Lightning Poise Ratio', 'Wt Bleed Ratio',
+                               'Wt Bleed Poise Ratio', 'Wt Poison Ratio', 'Wt Poison Poise Ratio', 'Wt Curse Ratio', 'Wt Curse Poise Ratio'];
+            
+            headers.forEach((header, index) => {
+                const column = columnMap[index];
+                const baseName = headerNames[index];
+                
+                if (sortColumn === column) {
+                    header.innerHTML = baseName + (sortDirection === 'asc' ? ' ▲' : ' ▼');
+                } else {
+                    header.innerHTML = baseName + ' ↕';
+                }
+            });
+        }
+
+        async function loadAllEquipment() {
+            const categories = ['head', 'chest', 'hands', 'legs'];
+            
+            for (const category of categories) {
+                try {
+                    const snapshot = await get(ref(database, `armor/${category}`));
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        equipmentData[category] = Object.entries(data).map(([id, item]) => ({
+                            id,
+                            ...item
+                        }));
+                    }
+                } catch (error) {
+                    console.error(`Error loading ${category}:`, error);
+                }
+            }
+            
+            try {
+                const snapshot = await get(ref(database, 'weapons'));
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    weaponsData = Object.entries(data).map(([id, item]) => ({
+                        id,
+                        ...item
+                    })).sort((a, b) => a.name.localeCompare(b.name));
+                }
+            } catch (error) {
+                console.error('Error loading weapons:', error);
+            }
+            
+            populateForceItemDropdowns();
+            populateWeaponDropdowns();
+            loadTableData('head');
+            loadInventoryList('head');
+        }
+
+        function populateWeaponDropdowns() {
+            const weaponDropdowns = ['weapon1', 'weapon2'];
+            const shieldDropdowns = ['shield1', 'shield2'];
+            
+            weaponDropdowns.forEach(dropdownId => {
+                const dropdown = document.getElementById(dropdownId);
+                dropdown.innerHTML = '<option value="">Unarmed (0.0)</option>' +
+                    weaponsData.map(item => `<option value="${item.id}">${item.name} (${item.wt})</option>`).join('');
+            });
+            
+            shieldDropdowns.forEach(dropdownId => {
+                const dropdown = document.getElementById(dropdownId);
+                dropdown.innerHTML = '<option value="">None (0.0)</option>' +
+                    weaponsData.map(item => `<option value="${item.id}">${item.name} (${item.wt})</option>`).join('');
+            });
+        }
+
+        function populateForceItemDropdowns() {
+            const dropdowns = {
+                head: document.getElementById('headItem'),
+                chest: document.getElementById('chestItem'),
+                hands: document.getElementById('handsItem'),
+                legs: document.getElementById('legsItem')
+            };
+            
+            for (const [category, dropdown] of Object.entries(dropdowns)) {
+                const items = [...equipmentData[category]].sort((a, b) => a.name.localeCompare(b.name));
+                dropdown.innerHTML = '<option value="">Select ' + category + ' item...</option>' +
+                    items.map(item => `<option value="${item.id}">${item.name}</option>`).join('');
+            }
+        }
+
+        window.sortInventoryAZ = function() {
+            equipmentData[currentInventoryCategory].sort((a, b) => a.name.localeCompare(b.name));
+            loadInventoryList(currentInventoryCategory);
+        };
+
+        window.saveInventory = function() {
+            const dataStr = JSON.stringify(inventory, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'dark-souls-inventory.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        };
+
+        window.loadInventory = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedInventory = JSON.parse(e.target.result);
+                    inventory = loadedInventory;
+                    localStorage.setItem('dsInventory', JSON.stringify(inventory));
+                    loadInventoryList(currentInventoryCategory);
+                    alert('Inventory loaded successfully!');
+                } catch (error) {
+                    alert('Error loading inventory file. Please make sure it is a valid JSON file.');
+                    console.error('Error loading inventory:', error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        };
+
+        function loadTableData(category) {
+            currentCategory = category;
+            sortColumn = null;
+            sortDirection = 'asc';
+            renderTable();
+        }
+
+        function loadInventoryList(category) {
+            currentInventoryCategory = category;
+            const container = document.getElementById('inventoryList');
+            const items = equipmentData[category];
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+            
+            container.innerHTML = items.map(item => {
+                const itemKey = `${category}_${item.id}`;
+                const isOwned = inventory[itemKey] || false;
+                
+                return `
+                    <div class="inventory-item ${isOwned ? 'owned' : ''}" data-item="${itemKey}">
+                        <input type="checkbox" id="inv_${itemKey}" ${isOwned ? 'checked' : ''} 
+                               onchange="toggleInventory('${itemKey}', this.checked)">
+                        <label for="inv_${itemKey}" style="cursor: pointer; flex: 1;">${item.name}</label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.toggleInventory = function(itemKey, owned) {
+            if (owned) {
+                inventory[itemKey] = true;
+            } else {
+                delete inventory[itemKey];
+            }
+            localStorage.setItem('dsInventory', JSON.stringify(inventory));
+            
+            const itemDiv = document.querySelector(`[data-item="${itemKey}"]`);
+            if (itemDiv) {
+                if (owned) {
+                    itemDiv.classList.add('owned');
+                } else {
+                    itemDiv.classList.remove('owned');
+                }
+            }
+        };
+
+        window.calculate = function() {
+            const maxEquipLoad = parseFloat(document.getElementById('maxEquipLoad').value);
+            const rollType = parseFloat(document.getElementById('rollType').value);
+            const priorityStat = document.getElementById('priorityStat').value;
+            const prioritizeInventory = document.getElementById('prioritizeInventory').checked;
+            
+            if (!maxEquipLoad || maxEquipLoad <= 0) {
+                alert('Please enter a valid max equip load');
+                return;
+            }
+            
+            const maxWeight = rollType === 999 ? Infinity : (maxEquipLoad * rollType / 100);
+            
+            let weaponShieldWeight = 0;
+            const weaponIds = ['weapon1', 'weapon2', 'shield1', 'shield2'];
+            weaponIds.forEach(id => {
+                const selectedId = document.getElementById(id).value;
+                if (selectedId) {
+                    const weapon = weaponsData.find(w => w.id === selectedId);
+                    if (weapon) {
+                        weaponShieldWeight += weapon.wt;
+                    }
+                }
+            });
+            
+            const results = {
+                head: null,
+                chest: null,
+                hands: null,
+                legs: null
+            };
+            
+            const forceSettings = {
+                head: { enabled: document.getElementById('forceHead').checked, id: document.getElementById('headItem').value },
+                chest: { enabled: document.getElementById('forceChest').checked, id: document.getElementById('chestItem').value },
+                hands: { enabled: document.getElementById('forceHands').checked, id: document.getElementById('handsItem').value },
+                legs: { enabled: document.getElementById('forceLegs').checked, id: document.getElementById('legsItem').value }
+            };
+            
+            let currentWeight = weaponShieldWeight;
+            for (const category of ['head', 'chest', 'hands', 'legs']) {
+                if (forceSettings[category].enabled && forceSettings[category].id) {
+                    const forcedItem = equipmentData[category].find(item => item.id === forceSettings[category].id);
+                    if (forcedItem) {
+                        results[category] = forcedItem;
+                        currentWeight += forcedItem.wt;
+                    }
+                }
+            }
+            
+            for (const category of ['head', 'chest', 'hands', 'legs']) {
+                if (results[category]) continue;
+                
+                let items = equipmentData[category];
+                
+                items = items.filter(item => !excludedItems[category].includes(item.id));
+                
+                if (prioritizeInventory) {
+                    const ownedItems = items.filter(item => inventory[`${category}_${item.id}`]);
+                    if (ownedItems.length > 0) {
+                        items = ownedItems;
+                    }
+                }
+                
+                items = [...items].sort((a, b) => {
+                    if (priorityStat === 'wt') {
+                        return a.wt - b.wt;
+                    }
+                    return b[priorityStat] - a[priorityStat];
+                });
+                
+                for (const item of items) {
+                    if (currentWeight + item.wt <= maxWeight) {
+                        results[category] = item;
+                        currentWeight += item.wt;
+                        break;
+                    }
+                }
+            }
+            
+            const totalWeight = Object.values(results).reduce((sum, item) => sum + (item ? item.wt : 0), 0) + weaponShieldWeight;
+            
+            displayResults(results, totalWeight, maxEquipLoad, rollType, weaponShieldWeight);
+        };
+
+        function displayResults(results, totalWeight, maxEquipLoad, rollType, weaponShieldWeight) {
+            const resultsDiv = document.getElementById('results');
+            const content = document.getElementById('resultsContent');
+            
+            const percentage = ((totalWeight / maxEquipLoad) * 100).toFixed(1);
+            const actualRollType = 
+                percentage <= 25 ? 'Fast Roll' :
+                percentage <= 50 ? 'Mid Roll' :
+                percentage <= 100 ? 'Fat Roll' :
+                "Can't Roll";
+            
+            const armorWeight = totalWeight - weaponShieldWeight;
+            
+            let html = `
+                <div style="margin-bottom: 20px; padding: 15px; background: #1a1a1a; border-radius: 4px;">
+                    <div class="stat-row">
+                        <span class="stat-label">Total Weight:</span>
+                        <span class="stat-value">${totalWeight.toFixed(1)} / ${maxEquipLoad.toFixed(1)} (${percentage}%)</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Armor Weight:</span>
+                        <span class="stat-value">${armorWeight.toFixed(1)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Weapons/Shields Weight:</span>
+                        <span class="stat-value">${weaponShieldWeight.toFixed(1)}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Roll Type:</span>
+                        <span class="stat-value">${actualRollType}</span>
+                    </div>
+                </div>
+            `;
+            
+            const categories = {
+                head: 'Head',
+                chest: 'Chest',
+                hands: 'Hands',
+                legs: 'Legs'
+            };
+            
+            for (const [category, item] of Object.entries(results)) {
+                if (item) {
+                    html += `
+                        <div class="equipment-item">
+                            <h3>${categories[category]}: ${item.name}</h3>
+                            <div class="stat-row">
+                                <span class="stat-label">Physical</span>
+                                <span class="stat-value">${item.phys}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Strike</span>
+                                <span class="stat-value">${item.strike}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Slash</span>
+                                <span class="stat-value">${item.slash}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Thrust</span>
+                                <span class="stat-value">${item.thrust}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Magic</span>
+                                <span class="stat-value">${item.mag}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Fire</span>
+                                <span class="stat-value">${item.fire}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Lightning</span>
+                                <span class="stat-value">${item.lghtng}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Poise</span>
+                                <span class="stat-value">${item.pse}</span>
+                            </div>
+                            <div class="stat-row">
+                                <span class="stat-label">Weight</span>
+                                <span class="stat-value">${item.wt}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            content.innerHTML = html;
+            resultsDiv.classList.add('show');
+        }
+
+        loadAllEquipment();
+    </script>
+</body>
+</html>
